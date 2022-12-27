@@ -1,1 +1,1 @@
-# voting-app
+# Go-init
