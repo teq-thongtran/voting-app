@@ -39,18 +39,18 @@ func (p *pgRepository) Update(ctx context.Context, data *model.Poll) error {
 }
 
 func (p *pgRepository) GetByID(ctx context.Context, id int64) (*model.Poll, error) {
-	var user model.Poll
+	var poll model.Poll
 
 	err := p.getDB(ctx).Debug().
-		Where("id = ? AND user_id = ?", id, ctx.Value("user_id")).
-		First(&user).
+		Where("id = ?", id).
+		First(&poll).
 		Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &poll, nil
 }
 
 func (p *pgRepository) Delete(ctx context.Context, data *model.Poll, unscoped bool) error {
@@ -71,7 +71,7 @@ func (p *pgRepository) GetList(
 	order []string,
 ) ([]model.Poll, int64, error) {
 	var (
-		db     = p.getDB(ctx).Model(&model.Poll{}).Debug().Preload("User")
+		db     = p.getDB(ctx).Model(&model.Poll{}).Debug()
 		data   = make([]model.Poll, 0)
 		total  int64
 		offset int
@@ -80,6 +80,8 @@ func (p *pgRepository) GetList(
 	if conditions != nil {
 		db = db.Where(conditions)
 	}
+
+	db = db.Or("poll_policy = ? ", "public")
 
 	for i := range order {
 		db = db.Order(order[i])

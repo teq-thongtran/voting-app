@@ -139,6 +139,9 @@ func (u *UseCase) GetByID(ctx context.Context, req *payload.GetByIDRequest) (*pr
 
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
-
+	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	if err != nil {
+		return nil, err
+	}
 	return &presenter.PollResponseWrapper{Poll: myPoll}, nil
 }

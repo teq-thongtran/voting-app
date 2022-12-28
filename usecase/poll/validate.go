@@ -43,6 +43,11 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollReq
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
 
+	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	if err != nil {
+		return nil, err
+	}
+
 	if req.PollTitle != nil {
 		*req.PollTitle = strings.TrimSpace(*req.PollTitle)
 		err := u.validateTitle(*req.PollTitle)
@@ -113,5 +118,12 @@ func (u *UseCase) validatePolicy(policy string) error {
 		return customError.ErrRequestInvalidParam("poll_policy")
 	}
 
+	return nil
+}
+
+func (u *UseCase) validatePoll(poll *model.Poll, userId int64) error {
+	if poll.PollPolicy == "private" && poll.UserId != userId {
+		return customError.ErrGetByPolicty()
+	}
 	return nil
 }

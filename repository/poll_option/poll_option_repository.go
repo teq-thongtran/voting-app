@@ -39,18 +39,18 @@ func (p *pgRepository) Update(ctx context.Context, data *model.PollOption) error
 }
 
 func (p *pgRepository) GetByID(ctx context.Context, id int64) (*model.PollOption, error) {
-	var user model.PollOption
+	var pollOption model.PollOption
 
 	err := p.getDB(ctx).Debug().
 		Where("id = ?", id).
-		First(&user).
+		First(&pollOption).
 		Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &user, nil
+	return &pollOption, nil
 }
 
 func (p *pgRepository) Delete(ctx context.Context, data *model.PollOption, unscoped bool) error {
@@ -71,7 +71,7 @@ func (p *pgRepository) GetList(
 	order []string,
 ) ([]model.PollOption, int64, error) {
 	var (
-		db     = p.getDB(ctx).Model(&model.PollOption{}).Debug().Preload("User")
+		db     = p.getDB(ctx).Model(&model.PollOption{}).Debug()
 		data   = make([]model.PollOption, 0)
 		total  int64
 		offset int
