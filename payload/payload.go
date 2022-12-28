@@ -12,11 +12,9 @@ type GetListRequest struct {
 	Page    int    `json:"page" query:"page"`
 	Limit   int    `json:"limit" query:"limit"`
 	OrderBy string `json:"order_by,omitempty" query:"order_by"`
-	Search  string `json:"search,omitempty" query:"search"`
 }
 
 func (g *GetListRequest) Format() {
-	g.Search = strings.TrimSpace(g.Search)
 	g.OrderBy = strings.ToLower(strings.TrimSpace(g.OrderBy))
 
 	for i := range orderBy {
