@@ -2,6 +2,7 @@ package pollopt
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"myapp/customError"
@@ -16,7 +17,7 @@ func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreatePollOpt
 		return customError.ErrModelGet(err, "Poll")
 	}
 
-	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	err = u.validatePoll(ctx, myPoll, ctx.Value("user_id").(int64))
 
 	if err != nil {
 		return err
@@ -76,9 +77,24 @@ func (u *UseCase) validatePollOption(pollOption *model.PollOption, userId int64)
 	return nil
 }
 
-func (u *UseCase) validatePoll(poll *model.Poll, userId int64) error {
-	if poll.UserId != userId {
-		return customError.ErrGetByPolicty()
+func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userId int64) error {
+	ids, err := u.PollRepo.GetListPollIds(ctx)
+	if err != nil {
+		return customError.ErrModelGet(err, "user_polls")
 	}
-	return nil
+
+	is_exists := contains(ids, strconv.FormatInt(poll.ID, 10))
+	if poll.UserId == userId || is_exists {
+		return nil
+	}
+	return customError.ErrGetByPolicty()
+}
+
+func contains(elems []string, v string) bool {
+	for _, s := range elems {
+		if v == s {
+			return true
+		}
+	}
+	return false
 }
