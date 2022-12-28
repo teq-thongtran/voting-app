@@ -155,3 +155,13 @@ func ErrDelete(err error) appError.AppError {
 		IsSentry:  true,
 	}
 }
+
+func ErrGetByPolicty() appError.AppError {
+	return appError.AppError{
+		Raw:       nil,
+		HTTPCode:  http.StatusNotFound,
+		ErrorCode: "000009",
+		Message:   "Unauthorized to get this object",
+		IsSentry:  true,
+	}
+}

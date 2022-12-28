@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"myapp/customError"
 	"myapp/payload"
 	"myapp/presenter"
 	"myapp/repository"
 	"myapp/repository/poll"
 	"myapp/repository/user"
-	"strings"
+
+	"gorm.io/gorm"
 
 	"myapp/model"
 )
@@ -34,20 +34,6 @@ func New(repo *repository.Repository) PollUseCase {
 		PollRepo: repo.Poll,
 		UserRepo: repo.User,
 	}
-}
-
-func (u *UseCase) validateCreate(req *payload.CreatePollRequest) error {
-	if req.PollTitle == "" {
-		return customError.ErrRequestInvalidParam("poll_title")
-	}
-
-	req.PollTitle = strings.TrimSpace(req.PollTitle)
-	if len(req.PollTitle) == 0 {
-		req.PollTitle = ""
-		return customError.ErrRequestInvalidParam("name_poll")
-	}
-
-	return nil
 }
 
 func (u *UseCase) Create(
@@ -78,30 +64,6 @@ func (u *UseCase) Create(
 	}
 
 	return &presenter.PollResponseWrapper{Poll: myPoll}, nil
-}
-
-func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollRequest) (*model.Poll, error) {
-	myPoll, err := u.PollRepo.GetByID(ctx, req.ID)
-	if err != nil {
-		return nil, customError.ErrModelGet(err, "Poll")
-	}
-
-	if req.PollTitle != nil {
-		*req.PollTitle = strings.TrimSpace(*req.PollTitle)
-		if len(*req.PollTitle) == 0 {
-			return nil, customError.ErrRequestInvalidParam("name")
-		}
-
-		myPoll.PollTitle = *req.PollTitle
-	}
-
-	userId := ctx.Value("user_id").(int64)
-
-	if myPoll.UserId != userId {
-		return nil, customError.ErrUnauthorized(nil)
-	}
-
-	return myPoll, nil
 }
 
 func (u *UseCase) Update(
@@ -150,7 +112,7 @@ func (u *UseCase) GetList(
 		order = append(order, fmt.Sprintf("%s", req.OrderBy))
 	}
 	conditions["user_id"] = ctx.Value("user_id")
-	myPolls, total, err := u.PollRepo.GetList(ctx, req.Search, req.Page, req.Limit, conditions, order)
+	myPolls, total, err := u.PollRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
@@ -177,6 +139,9 @@ func (u *UseCase) GetByID(ctx context.Context, req *payload.GetByIDRequest) (*pr
 
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
-
+	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	if err != nil {
+		return nil, err
+	}
 	return &presenter.PollResponseWrapper{Poll: myPoll}, nil
 }

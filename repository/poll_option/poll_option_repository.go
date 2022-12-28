@@ -1,4 +1,4 @@
-package poll
+package poll_option
 
 import (
 	"context"
@@ -9,17 +9,17 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, data *model.Poll) error
-	Update(ctx context.Context, data *model.Poll) error
-	GetByID(ctx context.Context, id int64) (*model.Poll, error)
-	Delete(ctx context.Context, data *model.Poll, unscoped bool) error
+	Create(ctx context.Context, data *model.PollOption) error
+	Update(ctx context.Context, data *model.PollOption) error
+	GetByID(ctx context.Context, id int64) (*model.PollOption, error)
+	Delete(ctx context.Context, data *model.PollOption, unscoped bool) error
 	GetList(
 		ctx context.Context,
 		page int,
 		limit int,
 		conditions interface{},
 		order []string,
-	) ([]model.Poll, int64, error)
+	) ([]model.PollOption, int64, error)
 }
 
 func NewPG(getDB func(ctx context.Context) *gorm.DB) Repository {
@@ -30,30 +30,30 @@ type pgRepository struct {
 	getDB func(ctx context.Context) *gorm.DB
 }
 
-func (p *pgRepository) Create(ctx context.Context, data *model.Poll) error {
+func (p *pgRepository) Create(ctx context.Context, data *model.PollOption) error {
 	return p.getDB(ctx).Create(data).Error
 }
 
-func (p *pgRepository) Update(ctx context.Context, data *model.Poll) error {
+func (p *pgRepository) Update(ctx context.Context, data *model.PollOption) error {
 	return p.getDB(ctx).Save(data).Error
 }
 
-func (p *pgRepository) GetByID(ctx context.Context, id int64) (*model.Poll, error) {
-	var poll model.Poll
+func (p *pgRepository) GetByID(ctx context.Context, id int64) (*model.PollOption, error) {
+	var pollOption model.PollOption
 
 	err := p.getDB(ctx).Debug().
 		Where("id = ?", id).
-		First(&poll).
+		First(&pollOption).
 		Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &poll, nil
+	return &pollOption, nil
 }
 
-func (p *pgRepository) Delete(ctx context.Context, data *model.Poll, unscoped bool) error {
+func (p *pgRepository) Delete(ctx context.Context, data *model.PollOption, unscoped bool) error {
 	db := p.getDB(ctx)
 
 	if unscoped {
@@ -69,10 +69,10 @@ func (p *pgRepository) GetList(
 	limit int,
 	conditions interface{},
 	order []string,
-) ([]model.Poll, int64, error) {
+) ([]model.PollOption, int64, error) {
 	var (
-		db     = p.getDB(ctx).Model(&model.Poll{}).Debug()
-		data   = make([]model.Poll, 0)
+		db     = p.getDB(ctx).Model(&model.PollOption{}).Debug()
+		data   = make([]model.PollOption, 0)
 		total  int64
 		offset int
 	)
@@ -80,8 +80,6 @@ func (p *pgRepository) GetList(
 	if conditions != nil {
 		db = db.Where(conditions)
 	}
-
-	db = db.Or("poll_policy = ? ", "public")
 
 	for i := range order {
 		db = db.Order(order[i])
