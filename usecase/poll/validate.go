@@ -80,12 +80,6 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollReq
 		myPoll.PollVoteType = *req.PollVoteType
 	}
 
-	userId := ctx.Value("user_id").(int64)
-
-	if myPoll.UserId != userId {
-		return nil, customError.ErrUnauthorized(nil)
-	}
-
 	return myPoll, nil
 }
 
@@ -122,7 +116,7 @@ func (u *UseCase) validatePolicy(policy string) error {
 }
 
 func (u *UseCase) validatePoll(poll *model.Poll, userId int64) error {
-	if poll.PollPolicy == "private" && poll.UserId != userId {
+	if poll.UserId != userId {
 		return customError.ErrGetByPolicty()
 	}
 	return nil
