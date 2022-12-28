@@ -13,7 +13,7 @@ func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreatePollOpt
 	myPoll, err := u.PollRepo.GetByID(ctx, req.PollId)
 
 	if err != nil {
-		return err
+		return customError.ErrModelGet(err, "Poll")
 	}
 
 	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))

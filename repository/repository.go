@@ -8,12 +8,14 @@ import (
 	"myapp/repository/poll"
 	pollopt "myapp/repository/poll_option"
 	"myapp/repository/user"
+	uspo "myapp/repository/user_poll"
 )
 
 type Repository struct {
 	User       user.Repository
 	Poll       poll.Repository
 	PollOption pollopt.Repository
+	UserPoll   uspo.Repository
 }
 
 func New(getClient func(ctx context.Context) *gorm.DB) *Repository {
@@ -21,5 +23,6 @@ func New(getClient func(ctx context.Context) *gorm.DB) *Repository {
 		User:       user.NewPG(getClient),
 		Poll:       poll.NewPG(getClient),
 		PollOption: pollopt.NewPG(getClient),
+		UserPoll:   uspo.NewPG(getClient),
 	}
 }
