@@ -2,8 +2,10 @@ package user
 
 import (
 	"context"
-	"gorm.io/gorm"
+
 	"myapp/model"
+
+	"gorm.io/gorm"
 )
 
 type Repository interface {
@@ -14,7 +16,7 @@ type Repository interface {
 	Delete(ctx context.Context, data *model.User, unscoped bool) error
 	GetList(
 		ctx context.Context,
-		search string,
+
 		page int,
 		limit int,
 		conditions interface{},
@@ -82,7 +84,6 @@ func (p *pgRepository) Delete(ctx context.Context, data *model.User, unscoped bo
 
 func (p *pgRepository) GetList(
 	ctx context.Context,
-	search string,
 	page int,
 	limit int,
 	conditions interface{},

@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
-	_ "golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 	"myapp/auth"
 	"myapp/customError"
 	"myapp/model"
@@ -15,6 +12,10 @@ import (
 	"myapp/repository"
 	"myapp/repository/user"
 	"strings"
+
+	"golang.org/x/crypto/bcrypt"
+	_ "golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserUserCase interface {
@@ -201,7 +202,7 @@ func (u *UseCase) GetList(
 		order = append(order, fmt.Sprintf("%s", req.OrderBy))
 	}
 
-	myUsers, total, err := u.UserRepo.GetList(ctx, req.Search, req.Page, req.Limit, conditions, order)
+	myUsers, total, err := u.UserRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "User")
 	}
