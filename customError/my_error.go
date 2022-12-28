@@ -9,7 +9,7 @@ import (
 func ErrModelGet(err error, modelName string) appError.AppError {
 	return appError.AppError{
 		Raw:       err,
-		HTTPCode:  http.StatusInternalServerError,
+		HTTPCode:  http.StatusNotFound,
 		ErrorCode: "10000",
 		Message:   "Failed to get " + modelName,
 		IsSentry:  true,

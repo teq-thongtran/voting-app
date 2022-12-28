@@ -1,19 +1,19 @@
-package poll_option
+package pollopt
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"myapp/repository/poll"
-	"strings"
+
+	"gorm.io/gorm"
 
 	"myapp/customError"
 	"myapp/model"
 	"myapp/payload"
 	"myapp/presenter"
 	"myapp/repository"
-	"myapp/repository/poll_option"
+	pollopt "myapp/repository/poll_option"
 	"myapp/repository/user"
 )
 
@@ -26,7 +26,7 @@ type PollOptionUseCase interface {
 }
 
 type UseCase struct {
-	PollOptionRepo poll_option.Repository
+	PollOptionRepo pollopt.Repository
 	UserRepo       user.Repository
 	PollRepo       poll.Repository
 }
@@ -39,25 +39,11 @@ func New(repo *repository.Repository) PollOptionUseCase {
 	}
 }
 
-func (u *UseCase) validateCreate(req *payload.CreatePollOptionRequest) error {
-	if req.OptionText == "" {
-		return customError.ErrRequestInvalidParam("poll_option_text")
-	}
-
-	req.OptionText = strings.TrimSpace(req.OptionText)
-	if len(req.OptionText) == 0 {
-		req.OptionText = ""
-		return customError.ErrRequestInvalidParam("poll_option_text")
-	}
-
-	return nil
-}
-
 func (u *UseCase) Create(
 	ctx context.Context,
 	req *payload.CreatePollOptionRequest,
 ) (*presenter.PollOptionResponseWrapper, error) {
-	if err := u.validateCreate(req); err != nil {
+	if err := u.validateCreate(ctx, req); err != nil {
 		return nil, err
 	}
 
@@ -82,30 +68,6 @@ func (u *UseCase) Create(
 	return &presenter.PollOptionResponseWrapper{PollOption: myPollOption}, nil
 }
 
-func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollOptionRequest) (*model.PollOption, error) {
-	myPollOption, err := u.PollOptionRepo.GetByID(ctx, req.ID)
-	if err != nil {
-		return nil, customError.ErrModelGet(err, "PollOption")
-	}
-
-	if req.OptionText != nil {
-		*req.OptionText = strings.TrimSpace(*req.OptionText)
-		if len(*req.OptionText) == 0 {
-			return nil, customError.ErrRequestInvalidParam("poll_option_text")
-		}
-
-		myPollOption.OptionText = *req.OptionText
-	}
-
-	userId := ctx.Value("user_id").(int64)
-
-	if myPollOption.UserId != userId {
-		return nil, customError.ErrUnauthorized(nil)
-	}
-
-	return myPollOption, nil
-}
-
 func (u *UseCase) Update(
 	ctx context.Context,
 	req *payload.UpdatePollOptionRequest,
@@ -127,6 +89,11 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 	myPollOption, err := u.PollOptionRepo.GetByID(ctx, req.ID)
 	if err != nil {
 		return customError.ErrModelGet(err, "PollOption")
+	}
+
+	err = u.validatePollOption(myPollOption, ctx.Value("user_id").(int64))
+	if err != nil {
+		return err
 	}
 
 	err = u.PollOptionRepo.Delete(ctx, myPollOption, false)
@@ -157,8 +124,10 @@ func (u *UseCase) GetList(
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
 
-	if myPoll.PollPolicy == "public" {
-		conditions["poll_id"] = pollId
+	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+
+	if err != nil {
+		return nil, err
 	}
 
 	myPollOptions, total, err := u.PollOptionRepo.GetList(ctx, req.Page, req.Limit, conditions, order)

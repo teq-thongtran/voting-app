@@ -1,15 +1,17 @@
 package http
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"myapp/auth"
-	"myapp/http/appSession"
+	appses "myapp/http/app_session"
 	"myapp/repository"
 	"net/http"
 	"regexp"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
 	"myapp/http/poll"
+	pollopt "myapp/http/poll_option"
 	"myapp/http/user"
 	"myapp/usecase"
 )
@@ -50,10 +52,12 @@ func NewHTTPHandler(useCase *usecase.UseCase, repo *repository.Repository) *echo
 	middlewares := auth.NewMiddlewareManager(repo.User)
 	userApi := api.Group("/users", middlewares.RequiredAuth)
 	pollApi := api.Group("/polls", middlewares.RequiredAuth)
+	pollOptionApi := api.Group("", middlewares.RequiredAuth)
 
 	// Init groups APIs
-	appSession.Init(api.Group("/session"), useCase)
+	appses.Init(api.Group("/session"), useCase)
 	user.Init(userApi.Group(""), useCase)
 	poll.Init(pollApi.Group(""), useCase)
+	pollopt.Init(pollOptionApi.Group(""), useCase)
 	return e
 }
