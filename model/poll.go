@@ -13,6 +13,8 @@ type Poll struct {
 	PollPolicy   string          `json:"poll_policy"`
 	PollTitle    string          `json:"poll_title"`
 	PollVoteType string          `json:"poll_vote_type"`
+	UserPolls    []UserPoll      `json:"-"`
+	PollOptions  []PollOption    `json:"-"`
 	CreatedAt    time.Time       `json:"created_at"`
 	UpdatedAt    time.Time       `json:"updated_at"`
 	DeletedAt    *gorm.DeletedAt `json:"-"`

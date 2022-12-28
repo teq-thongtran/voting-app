@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"errors"
-	"fmt"
 	"myapp/auth"
 	"myapp/customError"
 	"myapp/model"
@@ -14,7 +13,6 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
-	_ "golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -76,7 +74,6 @@ func (u *UseCase) Create(
 	}
 
 	Password, _ := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
-	fmt.Println("PASSWORD: ", Password, string(Password))
 	myUser := &model.User{
 		Name:     req.Name,
 		Username: req.Username,
@@ -199,7 +196,7 @@ func (u *UseCase) GetList(
 	)
 
 	if req.OrderBy != "" {
-		order = append(order, fmt.Sprintf("%s", req.OrderBy))
+		order = append(order, req.OrderBy)
 	}
 
 	myUsers, total, err := u.UserRepo.GetList(ctx, req.Page, req.Limit, conditions, order)

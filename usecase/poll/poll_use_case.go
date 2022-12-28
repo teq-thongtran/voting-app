@@ -89,6 +89,10 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 		return customError.ErrModelGet(err, "Poll")
 	}
 
+	if myPoll.UserId != ctx.Value("user_id").(int64) {
+		return customError.ErrGetByPolicty()
+	}
+
 	err = u.PollRepo.Delete(ctx, myPoll, false)
 	if err != nil {
 		return customError.ErrModelDelete(err)
@@ -111,7 +115,7 @@ func (u *UseCase) GetList(
 	if req.OrderBy != "" {
 		order = append(order, fmt.Sprintf("%s", req.OrderBy))
 	}
-	conditions["user_id"] = ctx.Value("user_id")
+
 	myPolls, total, err := u.PollRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "Poll")
@@ -139,7 +143,7 @@ func (u *UseCase) GetByID(ctx context.Context, req *payload.GetByIDRequest) (*pr
 
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
-	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	err = u.validatePoll(ctx, myPoll, ctx.Value("user_id").(int64))
 	if err != nil {
 		return nil, err
 	}

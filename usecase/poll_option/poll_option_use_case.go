@@ -124,12 +124,13 @@ func (u *UseCase) GetList(
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
 
-	err = u.validatePoll(myPoll, ctx.Value("user_id").(int64))
+	err = u.validatePoll(ctx, myPoll, ctx.Value("user_id").(int64))
 
 	if err != nil {
 		return nil, err
 	}
 
+	conditions["poll_id"] = pollId
 	myPollOptions, total, err := u.PollOptionRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "PollOption")
