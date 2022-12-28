@@ -1,4 +1,4 @@
-package app_session
+package appses
 
 import (
 	"myapp/appError"

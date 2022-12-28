@@ -1,4 +1,4 @@
-package poll_option
+package pollopt
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"myapp/payload"
 	"myapp/presenter"
 	"myapp/repository"
-	"myapp/repository/poll_option"
+	pollopt "myapp/repository/poll_option"
 	"myapp/repository/user"
 )
 
@@ -26,7 +26,7 @@ type PollOptionUseCase interface {
 }
 
 type UseCase struct {
-	PollOptionRepo poll_option.Repository
+	PollOptionRepo pollopt.Repository
 	UserRepo       user.Repository
 	PollRepo       poll.Repository
 }

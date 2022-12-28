@@ -6,20 +6,20 @@ import (
 	"gorm.io/gorm"
 
 	"myapp/repository/poll"
-	"myapp/repository/poll_option"
+	pollopt "myapp/repository/poll_option"
 	"myapp/repository/user"
 )
 
 type Repository struct {
 	User       user.Repository
 	Poll       poll.Repository
-	PollOption poll_option.Repository
+	PollOption pollopt.Repository
 }
 
 func New(getClient func(ctx context.Context) *gorm.DB) *Repository {
 	return &Repository{
 		User:       user.NewPG(getClient),
 		Poll:       poll.NewPG(getClient),
-		PollOption: poll_option.NewPG(getClient),
+		PollOption: pollopt.NewPG(getClient),
 	}
 }

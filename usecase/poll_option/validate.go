@@ -1,4 +1,4 @@
-package poll_option
+package pollopt
 
 import (
 	"context"
