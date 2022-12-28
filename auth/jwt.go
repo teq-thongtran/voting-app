@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"myapp/customError"
+	"os"
+
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/mitchellh/mapstructure"
-	"os"
 )
 
 type Token struct {
@@ -15,14 +17,18 @@ type CustomClaim struct {
 }
 
 func ValidateJWT(accessToken string) (string, error) {
-	token, _ := jwt.ParseWithClaims(accessToken, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(accessToken), nil
 	})
+
+	if token == nil {
+		return "", customError.ErrInvalidParams(nil)
+	}
 	validKey := token.Claims
 	claim := CustomClaim{}
-	err := mapstructure.Decode(validKey, &claim)
+	err = mapstructure.Decode(validKey, &claim)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	return claim.Username, nil
 }

@@ -20,6 +20,7 @@ type Repository interface {
 		conditions interface{},
 		order []string,
 	) ([]model.Poll, int64, error)
+	GetListPollIds(ctx context.Context) ([]string, error)
 }
 
 func NewPG(getDB func(ctx context.Context) *gorm.DB) Repository {
@@ -75,13 +76,20 @@ func (p *pgRepository) GetList(
 		data   = make([]model.Poll, 0)
 		total  int64
 		offset int
+		ids    []string
 	)
 
 	if conditions != nil {
 		db = db.Where(conditions)
 	}
 
-	db = db.Or("poll_policy = ? ", "public")
+	ids, err := p.GetListPollIds(ctx)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	db = db.Where("id IN ?", ids).Or("poll_policy = ? ", "public").Or("user_id = ?", ctx.Value("user_id"))
 
 	for i := range order {
 		db = db.Order(order[i])
@@ -98,7 +106,7 @@ func (p *pgRepository) GetList(
 		}
 	}
 
-	err := db.Limit(limit).Offset(offset).Find(&data).Error
+	err = db.Limit(limit).Offset(offset).Find(&data).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -108,4 +116,19 @@ func (p *pgRepository) GetList(
 	}
 
 	return data, total, nil
+}
+
+func (p *pgRepository) GetListPollIds(ctx context.Context) ([]string, error) {
+	var (
+		db  = p.getDB(ctx).Model(&model.UserPoll{}).Debug()
+		ids = make([]string, 0)
+	)
+
+	err := db.Where("user_id = ?", ctx.Value("user_id")).Pluck("poll_id", &ids).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ids, nil
 }
