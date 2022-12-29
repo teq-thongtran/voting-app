@@ -61,7 +61,7 @@ func (p *pgRepository) Delete(ctx context.Context, data *model.Poll, unscoped bo
 		db = db.Unscoped()
 	}
 
-	return db.Delete(data).Error
+	return db.Select("PollOptions", "UserPolls").Debug().Delete(data).Error
 }
 
 func (p *pgRepository) GetList(
