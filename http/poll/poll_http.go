@@ -1,7 +1,6 @@
 package poll
 
 import (
-	"github.com/labstack/echo/v4"
 	"myapp/appError"
 	"myapp/customError"
 	"myapp/payload"
@@ -9,6 +8,8 @@ import (
 	"myapp/teq"
 	"myapp/usecase"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Route struct {
@@ -113,7 +114,7 @@ func (r *Route) GetByID(c echo.Context) error {
 	var (
 		ctx   = &teq.CustomEchoContext{Context: c}
 		idStr = c.Param("id")
-		resp  *presenter.PollResponseWrapper
+		resp  *presenter.PollDetailResponseWrapper
 	)
 
 	id, err := strconv.ParseInt(idStr, 10, 64)
@@ -121,7 +122,7 @@ func (r *Route) GetByID(c echo.Context) error {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
 
-	resp, err = r.UseCase.Poll.GetByID(ctx, &payload.GetByIDRequest{ID: id})
+	resp, err = r.UseCase.Poll.GetDetailByID(ctx, &payload.GetByIDRequest{ID: id})
 	if err != nil {
 		return teq.Response.Error(c, err.(appError.AppError))
 	}

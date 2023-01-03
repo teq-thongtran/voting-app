@@ -13,6 +13,7 @@ import (
 	pollopt "myapp/http/poll_option"
 	"myapp/http/user"
 	uspo "myapp/http/user_poll"
+	usvo "myapp/http/user_vote"
 	"myapp/repository"
 	"myapp/usecase"
 )
@@ -61,5 +62,6 @@ func NewHTTPHandler(useCase *usecase.UseCase, repo *repository.Repository) *echo
 	poll.Init(pollApi.Group(""), useCase)
 	pollopt.Init(pollReferenceApi.Group(""), useCase)
 	uspo.Init(pollReferenceApi.Group(""), useCase)
+	usvo.Init(pollReferenceApi.Group(""), useCase)
 	return e
 }

@@ -1,4 +1,4 @@
-package pollopt
+package uspo
 
 import (
 	"context"
