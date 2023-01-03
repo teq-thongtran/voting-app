@@ -84,7 +84,7 @@ func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userId int
 	}
 
 	is_exists := contains(ids, strconv.FormatInt(poll.ID, 10))
-	if poll.UserId == userId || is_exists {
+	if poll.UserId == userId || is_exists || poll.PollPolicy == "public" {
 		return nil
 	}
 	return customError.ErrGetByPolicty()
