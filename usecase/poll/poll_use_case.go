@@ -9,7 +9,9 @@ import (
 	"myapp/presenter"
 	"myapp/repository"
 	"myapp/repository/poll"
+	pollopt "myapp/repository/poll_option"
 	"myapp/repository/user"
+	usvo "myapp/repository/user_vote"
 
 	"gorm.io/gorm"
 
@@ -20,19 +22,24 @@ type PollUseCase interface {
 	Create(ctx context.Context, req *payload.CreatePollRequest) (*presenter.PollResponseWrapper, error)
 	Update(ctx context.Context, req *payload.UpdatePollRequest) (*presenter.PollResponseWrapper, error)
 	GetByID(ctx context.Context, req *payload.GetByIDRequest) (*presenter.PollResponseWrapper, error)
+	GetDetailByID(ctx context.Context, req *payload.GetByIDRequest) (*presenter.PollDetailResponseWrapper, error)
 	GetList(ctx context.Context, req *payload.GetListRequest) (*presenter.ListPollResponseWrapper, error)
 	Delete(ctx context.Context, req *payload.DeleteRequest) error
 }
 
 type UseCase struct {
-	PollRepo poll.Repository
-	UserRepo user.Repository
+	PollRepo       poll.Repository
+	UserRepo       user.Repository
+	PollOptionRepo pollopt.Repository
+	UserVoteRepo   usvo.Repository
 }
 
 func New(repo *repository.Repository) PollUseCase {
 	return &UseCase{
-		PollRepo: repo.Poll,
-		UserRepo: repo.User,
+		PollRepo:       repo.Poll,
+		UserRepo:       repo.User,
+		PollOptionRepo: repo.PollOption,
+		UserVoteRepo:   repo.UserVote,
 	}
 }
 
@@ -148,4 +155,29 @@ func (u *UseCase) GetByID(ctx context.Context, req *payload.GetByIDRequest) (*pr
 		return nil, err
 	}
 	return &presenter.PollResponseWrapper{Poll: myPoll}, nil
+}
+
+func (u *UseCase) GetDetailByID(ctx context.Context, req *payload.GetByIDRequest) (*presenter.PollDetailResponseWrapper, error) {
+	myPoll, err := u.PollRepo.GetByID(ctx, req.ID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, customError.ErrModelNotFound()
+		}
+
+		return nil, customError.ErrModelGet(err, "Poll")
+	}
+	err = u.validatePoll(ctx, myPoll, ctx.Value("user_id").(int64))
+	if err != nil {
+		return nil, err
+	}
+
+	var conditions = map[string]interface{}{}
+	conditions["poll_id"] = req.ID
+	myPollOptions, _, _ := u.PollOptionRepo.GetList(ctx, 1, 100, conditions, nil)
+	myUserVotes, _, _ := u.UserVoteRepo.GetList(ctx, 1, 100, nil, req.ID, nil)
+	return &presenter.PollDetailResponseWrapper{
+		Poll:        myPoll,
+		PollOptions: myPollOptions,
+		UserVotes:   myUserVotes,
+	}, nil
 }
