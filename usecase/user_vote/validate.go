@@ -10,13 +10,13 @@ import (
 )
 
 func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreateUserVoteRequest) error {
-	myPollOption, err := u.PollOptionRepo.GetByID(ctx, req.PollOptionId)
+	myPollOption, err := u.PollOptionRepo.GetByID(ctx, req.PollOptionID)
 
 	if err != nil {
 		return customError.ErrModelGet(err, "PollOption")
 	}
 
-	myPoll, err := u.PollRepo.GetByID(ctx, myPollOption.PollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, myPollOption.PollID)
 
 	err = u.validatePoll(ctx, myPoll, ctx.Value("user_id").(int64))
 
@@ -27,14 +27,14 @@ func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreateUserVot
 	return nil
 }
 
-func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userId int64) error {
-	ids, err := u.PollRepo.GetListPollIds(ctx)
+func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userID int64) error {
+	ids, err := u.PollRepo.GetListPollID(ctx)
 	if err != nil {
 		return customError.ErrModelGet(err, "user_polls")
 	}
 
 	is_exists := contains(ids, strconv.FormatInt(poll.ID, 10))
-	if poll.UserId == userId || is_exists || poll.PollPolicy == "public" {
+	if poll.UserID == userID || is_exists || poll.PollPolicy == "public" {
 		return nil
 	}
 	return customError.ErrGetByPolicty()

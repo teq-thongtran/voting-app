@@ -8,7 +8,7 @@ import (
 
 type Poll struct {
 	ID           int64           `json:"id"`
-	UserId       int64           `json:"user_id"`
+	UserID       int64           `json:"user_id"`
 	User         User            `json:"-"`
 	PollPolicy   string          `json:"poll_policy"`
 	PollTitle    string          `json:"poll_title"`

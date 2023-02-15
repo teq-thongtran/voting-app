@@ -11,7 +11,7 @@ import (
 )
 
 func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreatePollOptionRequest) error {
-	myPoll, err := u.PollRepo.GetByID(ctx, req.PollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, req.PollID)
 
 	if err != nil {
 		return customError.ErrModelGet(err, "Poll")
@@ -53,9 +53,9 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollOpt
 		myPollOption.OptionText = *req.OptionText
 	}
 
-	userId := ctx.Value("user_id").(int64)
+	userID := ctx.Value("user_id").(int64)
 
-	if myPollOption.UserId != userId {
+	if myPollOption.UserID != userID {
 		return nil, customError.ErrUnauthorized(nil)
 	}
 
@@ -70,21 +70,21 @@ func (u *UseCase) validateText(optionText string) error {
 	return nil
 }
 
-func (u *UseCase) validatePollOption(pollOption *model.PollOption, userId int64) error {
-	if pollOption.UserId != userId {
+func (u *UseCase) validatePollOption(pollOption *model.PollOption, userID int64) error {
+	if pollOption.UserID != userID {
 		return customError.ErrGetByPolicty()
 	}
 	return nil
 }
 
-func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userId int64) error {
-	ids, err := u.PollRepo.GetListPollIds(ctx)
+func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userID int64) error {
+	ids, err := u.PollRepo.GetListPollID(ctx)
 	if err != nil {
 		return customError.ErrModelGet(err, "user_polls")
 	}
 
 	is_exists := contains(ids, strconv.FormatInt(poll.ID, 10))
-	if poll.UserId == userId || is_exists || poll.PollPolicy == "public" {
+	if poll.UserID == userID || is_exists || poll.PollPolicy == "public" {
 		return nil
 	}
 	return customError.ErrGetByPolicty()

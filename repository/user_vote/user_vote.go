@@ -17,7 +17,7 @@ type Repository interface {
 		page int,
 		limit int,
 		conditions interface{},
-		pollId int64,
+		pollID int64,
 		order []string,
 	) ([]model.UserVote, int64, error)
 }
@@ -64,7 +64,7 @@ func (p *pgRepository) GetList(
 	page int,
 	limit int,
 	conditions interface{},
-	pollId int64,
+	pollID int64,
 	order []string,
 ) ([]model.UserVote, int64, error) {
 	var (
@@ -74,7 +74,7 @@ func (p *pgRepository) GetList(
 		offset int
 	)
 
-	db = db.Joins("JOIN poll_options PollOption ON PollOption.id = user_votes.poll_option_id AND PollOption.poll_id = ?", pollId)
+	db = db.Joins("JOIN poll_options PollOption ON PollOption.id = user_votes.poll_option_id AND PollOption.poll_id = ?", pollID)
 
 	if conditions != nil {
 		db = db.Where(conditions)

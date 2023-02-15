@@ -89,13 +89,13 @@ func (r *Route) Update(c echo.Context) error {
 		resp  *presenter.PollResponseWrapper
 	)
 
-	pollId, err := strconv.ParseInt(idStr, 10, 64)
+	pollID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
 
 	req := payload.UpdatePollRequest{
-		ID: pollId,
+		ID: pollID,
 	}
 
 	if err = c.Bind(&req); err != nil {

@@ -20,7 +20,7 @@ type Repository interface {
 		conditions interface{},
 		order []string,
 	) ([]model.Poll, int64, error)
-	GetListPollIds(ctx context.Context) ([]string, error)
+	GetListPollID(ctx context.Context) ([]string, error)
 }
 
 func NewPG(getDB func(ctx context.Context) *gorm.DB) Repository {
@@ -83,7 +83,7 @@ func (p *pgRepository) GetList(
 		db = db.Where(conditions)
 	}
 
-	ids, err := p.GetListPollIds(ctx)
+	ids, err := p.GetListPollID(ctx)
 
 	if err != nil {
 		return nil, 0, err
@@ -118,7 +118,7 @@ func (p *pgRepository) GetList(
 	return data, total, nil
 }
 
-func (p *pgRepository) GetListPollIds(ctx context.Context) ([]string, error) {
+func (p *pgRepository) GetListPollID(ctx context.Context) ([]string, error) {
 	var (
 		db  = p.getDB(ctx).Model(&model.UserPoll{}).Debug()
 		ids = make([]string, 0)

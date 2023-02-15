@@ -16,7 +16,7 @@ import (
 
 type UserPollUseCase interface {
 	Create(ctx context.Context, req *payload.CreateUserPollRequest) (*presenter.UserPollResponseWrapper, error)
-	GetList(ctx context.Context, req *payload.GetListRequest, pollId int64) (*presenter.ListUserPollResponseWrapper, error)
+	GetList(ctx context.Context, req *payload.GetListRequest, pollID int64) (*presenter.ListUserPollResponseWrapper, error)
 	Delete(ctx context.Context, req *payload.DeleteRequest) error
 }
 
@@ -43,8 +43,8 @@ func (u *UseCase) Create(
 	}
 
 	myUserPoll := &model.UserPoll{
-		PollId: req.PollId,
-		UserId: req.UserId,
+		PollID: req.PollID,
+		UserID: req.UserID,
 	}
 
 	err := u.UserPollRepo.Create(ctx, myUserPoll)
@@ -61,7 +61,7 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 		return customError.ErrModelGet(err, "UserPoll")
 	}
 
-	myPoll, err := u.PollRepo.GetByID(ctx, myUserPoll.PollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, myUserPoll.PollID)
 	if err != nil {
 		return customError.ErrModelGet(err, "Poll")
 	}
@@ -82,7 +82,7 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 func (u *UseCase) GetList(
 	ctx context.Context,
 	req *payload.GetListRequest,
-	pollId int64,
+	pollID int64,
 ) (*presenter.ListUserPollResponseWrapper, error) {
 	req.Format()
 
@@ -95,7 +95,7 @@ func (u *UseCase) GetList(
 		order = append(order, fmt.Sprintf("%s", req.OrderBy))
 	}
 
-	myPoll, err := u.PollRepo.GetByID(ctx, pollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, pollID)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
@@ -106,7 +106,7 @@ func (u *UseCase) GetList(
 		return nil, err
 	}
 
-	conditions["poll_id"] = pollId
+	conditions["poll_id"] = pollID
 	myUserPolls, total, err := u.UserPollRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "UserPoll")

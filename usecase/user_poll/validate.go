@@ -9,7 +9,7 @@ import (
 )
 
 func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreateUserPollRequest) error {
-	myPoll, err := u.PollRepo.GetByID(ctx, req.PollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, req.PollID)
 
 	if err != nil {
 		return customError.ErrModelGet(err, "Poll")
@@ -21,7 +21,7 @@ func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreateUserPol
 		return err
 	}
 
-	_, err = u.UserRepo.GetByID(ctx, req.UserId)
+	_, err = u.UserRepo.GetByID(ctx, req.UserID)
 
 	if err != nil {
 		return err
@@ -30,8 +30,8 @@ func (u *UseCase) validateCreate(ctx context.Context, req *payload.CreateUserPol
 	return nil
 }
 
-func (u *UseCase) validatePoll(poll *model.Poll, userId int64) error {
-	if poll.UserId != userId {
+func (u *UseCase) validatePoll(poll *model.Poll, userID int64) error {
+	if poll.UserID != userID {
 		return customError.ErrGetByPolicty()
 	}
 	return nil

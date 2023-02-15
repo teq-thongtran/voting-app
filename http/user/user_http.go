@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/labstack/echo/v4"
 	"myapp/appError"
 	"myapp/customError"
 	"myapp/payload"
@@ -9,6 +8,8 @@ import (
 	"myapp/teq"
 	"myapp/usecase"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 type Route struct {
@@ -26,10 +27,10 @@ func Init(group *echo.Group, useCase *usecase.UseCase) {
 func (r *Route) Delete(c echo.Context) error {
 	var (
 		ctx    = &teq.CustomEchoContext{Context: c}
-		userId = ctx.Context.Get("user_id").(int64)
+		userID = ctx.Context.Get("user_id").(int64)
 	)
 
-	err := r.UseCase.User.Delete(ctx, &payload.DeleteRequest{ID: userId})
+	err := r.UseCase.User.Delete(ctx, &payload.DeleteRequest{ID: userID})
 	if err != nil {
 		return teq.Response.Error(c, err.(appError.AppError))
 	}
@@ -59,12 +60,12 @@ func (r *Route) GetList(c echo.Context) error {
 func (r *Route) Update(c echo.Context) error {
 	var (
 		ctx    = &teq.CustomEchoContext{Context: c}
-		userId = ctx.Context.Get("user_id").(int64)
+		userID = ctx.Context.Get("user_id").(int64)
 		resp   *presenter.UserResponseWrapper
 	)
 
 	req := payload.UpdateUserRequest{
-		ID: userId,
+		ID: userID,
 	}
 
 	if err := c.Bind(&req); err != nil {
@@ -103,8 +104,8 @@ func (r *Route) GetMyself(c echo.Context) error {
 	var (
 		ctx = &teq.CustomEchoContext{Context: c}
 	)
-	userId := ctx.Context.Get("user_id").(int64)
-	resp, err := r.UseCase.User.GetByID(ctx, &payload.GetByIDRequest{ID: userId})
+	userID := ctx.Context.Get("user_id").(int64)
+	resp, err := r.UseCase.User.GetByID(ctx, &payload.GetByIDRequest{ID: userID})
 	if err != nil {
 		return teq.Response.Error(c, err.(appError.AppError))
 	}

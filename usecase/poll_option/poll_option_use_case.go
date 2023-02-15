@@ -21,7 +21,7 @@ type PollOptionUseCase interface {
 	Create(ctx context.Context, req *payload.CreatePollOptionRequest) (*presenter.PollOptionResponseWrapper, error)
 	Update(ctx context.Context, req *payload.UpdatePollOptionRequest) (*presenter.PollOptionResponseWrapper, error)
 	GetByID(ctx context.Context, req *payload.GetByIDRequest) (*presenter.PollOptionResponseWrapper, error)
-	GetList(ctx context.Context, req *payload.GetListRequest, pollId int64) (*presenter.ListPollOptionResponseWrapper, error)
+	GetList(ctx context.Context, req *payload.GetListRequest, pollID int64) (*presenter.ListPollOptionResponseWrapper, error)
 	Delete(ctx context.Context, req *payload.DeleteRequest) error
 }
 
@@ -47,8 +47,8 @@ func (u *UseCase) Create(
 		return nil, err
 	}
 
-	userId := ctx.Value("user_id").(int64)
-	myUser, err := u.UserRepo.GetByID(ctx, userId)
+	userID := ctx.Value("user_id").(int64)
+	myUser, err := u.UserRepo.GetByID(ctx, userID)
 
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "User")
@@ -56,8 +56,8 @@ func (u *UseCase) Create(
 
 	myPollOption := &model.PollOption{
 		OptionText: req.OptionText,
-		PollId:     req.PollId,
-		UserId:     myUser.ID,
+		PollID:     req.PollID,
+		UserID:     myUser.ID,
 	}
 
 	err = u.PollOptionRepo.Create(ctx, myPollOption)
@@ -107,7 +107,7 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 func (u *UseCase) GetList(
 	ctx context.Context,
 	req *payload.GetListRequest,
-	pollId int64,
+	pollID int64,
 ) (*presenter.ListPollOptionResponseWrapper, error) {
 	req.Format()
 
@@ -119,7 +119,7 @@ func (u *UseCase) GetList(
 	if req.OrderBy != "" {
 		order = append(order, fmt.Sprintf("%s", req.OrderBy))
 	}
-	myPoll, err := u.PollRepo.GetByID(ctx, pollId)
+	myPoll, err := u.PollRepo.GetByID(ctx, pollID)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
@@ -130,7 +130,7 @@ func (u *UseCase) GetList(
 		return nil, err
 	}
 
-	conditions["poll_id"] = pollId
+	conditions["poll_id"] = pollID
 	myPollOptions, total, err := u.PollOptionRepo.GetList(ctx, req.Page, req.Limit, conditions, order)
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "PollOption")

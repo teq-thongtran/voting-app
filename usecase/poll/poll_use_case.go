@@ -51,8 +51,8 @@ func (u *UseCase) Create(
 		return nil, err
 	}
 
-	userId := ctx.Value("user_id").(int64)
-	myUser, err := u.UserRepo.GetByID(ctx, userId)
+	userID := ctx.Value("user_id").(int64)
+	myUser, err := u.UserRepo.GetByID(ctx, userID)
 
 	if err != nil {
 		return nil, customError.ErrModelGet(err, "User")
@@ -62,7 +62,7 @@ func (u *UseCase) Create(
 		PollPolicy:   req.PollPolicy,
 		PollTitle:    req.PollTitle,
 		PollVoteType: req.PollVoteType,
-		UserId:       myUser.ID,
+		UserID:       myUser.ID,
 	}
 
 	err = u.PollRepo.Create(ctx, myPoll)
@@ -96,7 +96,7 @@ func (u *UseCase) Delete(ctx context.Context, req *payload.DeleteRequest) error 
 		return customError.ErrModelGet(err, "Poll")
 	}
 
-	if myPoll.UserId != ctx.Value("user_id").(int64) {
+	if myPoll.UserID != ctx.Value("user_id").(int64) {
 		return customError.ErrGetByPolicty()
 	}
 

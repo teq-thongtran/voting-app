@@ -29,9 +29,9 @@ func (r *Route) Create(c echo.Context) error {
 		ctx       = &teq.CustomEchoContext{Context: c}
 		resp      *presenter.PollOptionResponseWrapper
 		req       = payload.CreatePollOptionRequest{}
-		pollIdStr = c.Param("poll_id")
+		pollIDStr = c.Param("poll_id")
 	)
-	pollId, err := strconv.ParseInt(pollIdStr, 10, 64)
+	pollID, err := strconv.ParseInt(pollIDStr, 10, 64)
 
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func (r *Route) Create(c echo.Context) error {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
 
-	req.PollId = pollId
+	req.PollID = pollID
 	resp, err = r.UseCase.PollOption.Create(ctx, &req)
 	if err != nil {
 		return teq.Response.Error(c, err.(appError.AppError))
@@ -74,10 +74,10 @@ func (r *Route) GetList(c echo.Context) error {
 		ctx       = &teq.CustomEchoContext{Context: c}
 		req       = payload.GetListRequest{}
 		resp      *presenter.ListPollOptionResponseWrapper
-		pollIdStr = c.Param("poll_id")
+		pollIDStr = c.Param("poll_id")
 	)
 
-	pollId, err := strconv.ParseInt(pollIdStr, 10, 64)
+	pollID, err := strconv.ParseInt(pollIDStr, 10, 64)
 	if err != nil {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
@@ -86,7 +86,7 @@ func (r *Route) GetList(c echo.Context) error {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
 
-	resp, err = r.UseCase.PollOption.GetList(ctx, &req, pollId)
+	resp, err = r.UseCase.PollOption.GetList(ctx, &req, pollID)
 	if err != nil {
 		return teq.Response.Error(c, err.(appError.AppError))
 	}
@@ -101,13 +101,13 @@ func (r *Route) Update(c echo.Context) error {
 		resp  *presenter.PollOptionResponseWrapper
 	)
 
-	PollOptionId, err := strconv.ParseInt(idStr, 10, 64)
+	PollOptionID, err := strconv.ParseInt(idStr, 10, 64)
 	if err != nil {
 		return teq.Response.Error(ctx, customError.ErrInvalidParams(err))
 	}
 
 	req := payload.UpdatePollOptionRequest{
-		ID: PollOptionId,
+		ID: PollOptionID,
 	}
 
 	if err = c.Bind(&req); err != nil {

@@ -44,7 +44,7 @@ func (u *UseCase) validateUpdate(ctx context.Context, req *payload.UpdatePollReq
 		return nil, customError.ErrModelGet(err, "Poll")
 	}
 
-	if myPoll.UserId != ctx.Value("user_id").(int64) {
+	if myPoll.UserID != ctx.Value("user_id").(int64) {
 		return nil, customError.ErrGetByPolicty()
 	}
 
@@ -115,14 +115,14 @@ func (u *UseCase) validatePolicy(policy string) error {
 	return nil
 }
 
-func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userId int64) error {
-	ids, err := u.PollRepo.GetListPollIds(ctx)
+func (u *UseCase) validatePoll(ctx context.Context, poll *model.Poll, userID int64) error {
+	ids, err := u.PollRepo.GetListPollID(ctx)
 	if err != nil {
 		return customError.ErrModelGet(err, "user_polls")
 	}
 
 	is_exists := contains(ids, strconv.FormatInt(poll.ID, 10))
-	if poll.UserId == userId || is_exists {
+	if poll.UserID == userID || is_exists {
 		return nil
 	}
 	return customError.ErrGetByPolicty()
